@@ -6,8 +6,9 @@
         {
             "label": "make TinyWebServer",// 编译的项目名
             "type": "shell",
-            "command": "mkdir build; cd ./build; cmake ../; make; ./server.exe",
+            // "command": "mkdir build; cd ./build; cmake ../; make; ./server.exe",
             // "command": "mkdir test/build; cd ./test/build; cmake ../; make; ./test.exe",
+            "command": "cd ./test/build; g++ -g ../main.cpp -o test.exe",
             "group": {
                 "kind": "build",
                 "isDefault": true
