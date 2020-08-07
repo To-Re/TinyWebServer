@@ -34,10 +34,12 @@ private:
 };
 
 // 互斥锁
+class cond;
 class locker {
 public:
+    friend class cond;
     locker() {
-        if(!pthread_mutex_init(&my_mutex, NULL)) {
+        if(pthread_mutex_init(&my_mutex, NULL)) {
             throw std::exception();
         }
     }
@@ -69,11 +71,11 @@ public:
     }
     cond(const cond &) = default;
     cond& operator= (const cond &) = default; // 有线程阻塞时，被赋值可能出现问题
-    bool wait(pthread_mutex_t &mutex) {
-        return pthread_cond_wait(&my_cond, &mutex) == 0;
+    bool wait(locker &my_lock) {
+        return pthread_cond_wait(&my_cond, &my_lock.my_mutex) == 0;
     }
     bool signal() {
-        return pthread_cond_signal(&my_cond);
+        return pthread_cond_signal(&my_cond) == 0;
     }
 private:
     pthread_cond_t my_cond;
