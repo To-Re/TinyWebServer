@@ -9,6 +9,9 @@ set(
     SRC_LIST
     ${LIB_DIR}/locker/locker.h
     ${LIB_DIR}/threadpool/threadpool.h
+    ${LIB_DIR}/threadpool/threadpool.cpp
+    ${LIB_DIR}/threadpool/taskQueue.h
+    ${LIB_DIR}/threadpool/taskQueue.cpp
     ${LIB_DIR}/config.h
     main.cpp
 )

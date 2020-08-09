@@ -11,9 +11,13 @@ void fk(int a, int b) {
 
 int main() {
     cout << config::PORT << endl;
-    threadPool a;
+    wzy::threadPool a;
     a.addTask( []{cout << "fuck" << endl;} );
     a.addTask(bind(fk, 3, 6));
+    a.addTask(bind(fk, 4, 6));
+    a.addTask(bind(fk, 4, 6));
+    a.addTask(bind(fk, 4, 6));
+    a.addTask(bind(fk, 4, 6));
     sleep(2);
     return 0;
 }
