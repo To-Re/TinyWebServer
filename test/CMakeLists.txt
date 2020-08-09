@@ -8,12 +8,15 @@ set(LIB_DIR ${PROJECT_SOURCE_DIR}/../Code)
 set(
     SRC_LIST
     ${LIB_DIR}/locker/locker.h
-    多线程循环打印.cpp
-    # main.cpp
+    ${LIB_DIR}/threadpool/threadpool.h
+    ${LIB_DIR}/config.h
+    main.cpp
 )
 
 INCLUDE_DIRECTORIES(
     ${LIB_DIR}/locker
+    ${LIB_DIR}/threadpool
+    ${LIB_DIR}
 )
 
 find_package(Threads)
