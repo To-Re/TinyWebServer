@@ -56,9 +56,8 @@ bool taskQueue<T>::addTask(const T & tmpTask) {
 template <typename T>
 bool taskQueue<T>::addTask(const std::initializer_list<T> & tmpTasks) {
     uniqueLocker nowLock(tasksMutex);
-    size_t remainingSpace = maxTastQueueNum - tasks.size();
-    size_t needSpace = tmpTasks.size();
-    if(remainingSpace < needSpace)
+    // 第一个判断避免数据变负，虽然正常情况不会变负
+    if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
         return false;
     for(const auto &ftask : tmpTasks) {
         tasks.push(ftask);
@@ -70,9 +69,8 @@ bool taskQueue<T>::addTask(const std::initializer_list<T> & tmpTasks) {
 template <typename T>
 bool taskQueue<T>::addTask(std::initializer_list<T> && tmpTasks) {
     uniqueLocker nowLock(tasksMutex);
-    size_t remainingSpace = maxTastQueueNum - tasks.size();
-    size_t needSpace = tmpTasks.size();
-    if(remainingSpace < needSpace)
+    // 第一个判断避免数据变负，虽然正常情况不会变负
+    if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
         return false;
     for(auto &ftask : tmpTasks) {
         tasks.emplace(ftask);
