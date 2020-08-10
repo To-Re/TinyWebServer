@@ -21,7 +21,7 @@ public:
     ~taskQueue() { close(); };
     bool addTask(const T &);
     bool addTask(const std::initializer_list<T> &);
-    bool addTask(std::initializer_list<T> &&);
+    // bool addTask(std::initializer_list<T> &&);
     std::vector<T> getTask(size_t aid = 1); // 服了，模板默认形参要在声明这写
     void close() {
         isClosed = true;
@@ -60,24 +60,24 @@ bool taskQueue<T>::addTask(const std::initializer_list<T> & tmpTasks) {
     if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
         return false;
     for(const auto &ftask : tmpTasks) {
-        tasks.push(ftask);
-    }
-    tasksCond.signal();
-    return true;
-}
-
-template <typename T>
-bool taskQueue<T>::addTask(std::initializer_list<T> && tmpTasks) {
-    uniqueLocker nowLock(tasksMutex);
-    // 第一个判断避免数据变负，虽然正常情况不会变负
-    if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
-        return false;
-    for(auto &ftask : tmpTasks) {
         tasks.emplace(ftask);
     }
     tasksCond.signal();
     return true;
 }
+
+// template <typename T>
+// bool taskQueue<T>::addTask(std::initializer_list<T> && tmpTasks) {
+//     uniqueLocker nowLock(tasksMutex);
+//     // 第一个判断避免数据变负，虽然正常情况不会变负
+//     if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
+//         return false;
+//     for(auto &ftask : tmpTasks) {
+//         tasks.emplace(ftask);
+//     }
+//     tasksCond.signal();
+//     return true;
+// }
 
 template <typename T>
 std::vector<T> taskQueue<T>::getTask(size_t aid) {
