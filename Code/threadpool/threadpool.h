@@ -5,14 +5,14 @@
 
 #include <vector>
 #include <cstddef>
-#include <exception>
-#include <functional>
+#include <initializer_list>
 
 #include "config.h"
 #include "taskQueue.h"
 
 namespace wzy {
 
+template <typename T>
 class threadPool{
 public:
     threadPool(
@@ -21,22 +21,23 @@ public:
     );
     ~threadPool();
     // 添加任务
-    bool addTask(std::function<void()> func) {
-        return tasks.addOneTask(func);
-    }
+    bool addTask(const T &);
+    bool addTask(const std::initializer_list<T> &);
+    bool addTask(std::initializer_list<T> &&);
 private:
     // 工作线程数
     size_t workThreadNum;
     // 线程数组
     std::vector<pthread_t> workers;
     // 任务队列
-    taskQueue tasks;
+    taskQueue<T> tasks;
     // 是否关闭
     bool isClosed = false;
     static void *worker(void *arg);
 };
 
-inline threadPool::threadPool(
+template <typename T>
+threadPool<T>::threadPool(
     size_t workNum, size_t maxTasks
 ) : workThreadNum(workNum), tasks(maxTasks), isClosed(false) {
     workers.resize(workThreadNum);
@@ -48,14 +49,41 @@ inline threadPool::threadPool(
     }
 }
 
-inline threadPool::~threadPool() {
+template <typename T>
+threadPool<T>::~threadPool() {
     isClosed = true;
-    // 没找到，唤醒全部阻塞信号量的 API，循环调用
-    for(size_t i = 0; i < workThreadNum; ++i)
-        tasks.post();
+    tasks.close();
     for(auto & v: workers) {
         pthread_join(v, NULL);
     }
+}
+
+// 添加任务
+template <typename T>
+bool threadPool<T>::addTask(const T &tmpTasks) {
+    return tasks.addTask(tmpTasks);
+}
+
+template <typename T>
+bool threadPool<T>::addTask(const std::initializer_list<T> &tmpTasks) {
+    return tasks.addTask(tmpTasks);
+}
+
+template <typename T>
+bool threadPool<T>::addTask(std::initializer_list<T> &&tmpTasks) {
+    return tasks.addTask(tmpTasks);
+}
+
+// 工作线程
+template <typename T>
+void *threadPool<T>::worker(void *arg) {
+    threadPool *pool = static_cast<threadPool *>(arg);
+    while(pool->isClosed == false) {
+        std::vector<T> tmpTasks = (pool->tasks).getTask(1);
+        for(auto & task : tmpTasks)
+            task(); // 先整个函数
+    }
+    return NULL;
 }
 
 }
