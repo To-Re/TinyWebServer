@@ -6,8 +6,7 @@
 #include <semaphore.h>
 
 /*
-封装了，信号量、互斥锁
-条件变量不封装了，感觉直接使用比较方便，还可以避免虚假唤醒（菜到不知道如何封装）
+封装了，信号量、互斥锁、条件变量
 感觉应该使用智能指针，但本人能力有限，还是先学习其他人的一些方法
 */
 
@@ -26,11 +25,11 @@ public:
     };
     sem(const sem &) = default;
     sem& operator= (const sem&) = default; // 有线程阻塞时，被赋值可能出现问题
-    bool wait() {
-        return sem_wait(&my_sem) == 0;
+    void wait() {
+        sem_wait(&my_sem);
     }
-    bool post() {
-        return sem_post(&my_sem) == 0;
+    void post() {
+        sem_post(&my_sem);
     }
 private:
     sem_t my_sem;
@@ -39,26 +38,41 @@ private:
 // 互斥锁
 class uniqueLocker {
 public:
-    uniqueLocker() {
-        if(pthread_mutex_init(&my_mutex, NULL)) {
-            throw std::exception();
-        }
-        pthread_mutex_lock(&my_mutex);
-    }
+    // 拷贝后不同，需要传引用
     explicit uniqueLocker(pthread_mutex_t &mutex) : my_mutex(mutex) {
-        if(pthread_mutex_init(&my_mutex, NULL)) {
-            throw std::exception();
-        }
         pthread_mutex_lock(&my_mutex);
     }
     ~uniqueLocker() {
         pthread_mutex_unlock(&my_mutex);
-        pthread_mutex_destroy(&my_mutex);
     }
     uniqueLocker(const uniqueLocker &) = delete;
     uniqueLocker& operator= (const uniqueLocker&) = delete;
 private:
-    pthread_mutex_t my_mutex;
+    pthread_mutex_t& my_mutex;
+};
+
+// 条件变量
+class cond {
+public:
+    cond() {
+        if(pthread_cond_init(&my_cond, NULL)) {
+            throw std::exception();
+        }
+    }
+    ~cond() {
+        pthread_cond_destroy(&my_cond);
+    }
+    void wait(pthread_mutex_t &m_mutex) {
+        pthread_cond_wait(&my_cond, &m_mutex);
+    }
+    void signal() {
+        pthread_cond_signal(&my_cond);
+    }
+    void broadcast() {
+        pthread_cond_broadcast(&my_cond);
+    }
+private:
+    pthread_cond_t my_cond;
 };
 
 }
