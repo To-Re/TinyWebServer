@@ -23,7 +23,7 @@ public:
     // 添加任务
     bool addTask(const T &);
     bool addTask(const std::initializer_list<T> &);
-    bool addTask(std::initializer_list<T> &&);
+    // bool addTask(std::initializer_list<T> &&);
 private:
     // 工作线程数
     size_t workThreadNum;
@@ -69,10 +69,10 @@ bool threadPool<T>::addTask(const std::initializer_list<T> &tmpTasks) {
     return tasks.addTask(tmpTasks);
 }
 
-template <typename T>
-bool threadPool<T>::addTask(std::initializer_list<T> &&tmpTasks) {
-    return tasks.addTask(tmpTasks);
-}
+// template <typename T>
+// bool threadPool<T>::addTask(std::initializer_list<T> &&tmpTasks) {
+//     return tasks.addTask(tmpTasks);
+// }
 
 // 工作线程
 template <typename T>
