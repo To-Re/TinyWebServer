@@ -6,27 +6,18 @@
 #include "tcpsocket.h"
 using namespace std;
 
-
-void fk(int a, int b) {
-    cout << a << " + " << b << " = " << a + b << endl;
-}
-
-void md() {
-    cout << "wtf" << endl;
-}
-
 int main() {
     int str_len, BUF_SIZE = 100;
     char s[100] = "wdnmd\n";
     wzy::tcpSocket ser, clnt;
-    ser.Socket();
-    ser.Bind(config::PORT);
-    ser.Listen();
-    ser.Accept(clnt);
+    ser.socket();
+    ser.bind(config::PORT);
+    ser.listen();
+    ser.accept(clnt);
     write(clnt, s, sizeof(s));
     while((str_len = read(clnt, s, BUF_SIZE)) != 0)
         write(clnt, s, str_len);
-    clnt.Close();
+    clnt.close();
     ser.setNonBlocking();
     while(ser.nonBlockingAccept(clnt) == false) {
         cout << "###?" << endl;
@@ -38,7 +29,7 @@ int main() {
         printf("%s",s);
         memset(s,0,sizeof(s));
     }
-    clnt.Close();
+    clnt.close();
     return 0;
 }
 /*
