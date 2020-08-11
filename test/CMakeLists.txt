@@ -10,6 +10,8 @@ set(
     ${LIB_DIR}/locker/locker.h
     ${LIB_DIR}/threadpool/threadpool.h
     ${LIB_DIR}/threadpool/taskQueue.h
+    ${LIB_DIR}/toys/tcpsocket.h
+    ${LIB_DIR}/toys/tcpsocket.cpp
     ${LIB_DIR}/config.h
     main.cpp
 )
@@ -17,6 +19,7 @@ set(
 INCLUDE_DIRECTORIES(
     ${LIB_DIR}/locker
     ${LIB_DIR}/threadpool
+    ${LIB_DIR}/toys
     ${LIB_DIR}
 )
 
