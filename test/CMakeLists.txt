@@ -12,6 +12,8 @@ set(
     ${LIB_DIR}/threadpool/taskQueue.h
     ${LIB_DIR}/toys/tcpsocket.h
     ${LIB_DIR}/toys/tcpsocket.cpp
+    ${LIB_DIR}/toys/etEpoll.h
+    ${LIB_DIR}/toys/etEpoll.cpp
     ${LIB_DIR}/config.h
     main.cpp
 )
