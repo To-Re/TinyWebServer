@@ -38,6 +38,7 @@ public:
     }
 
     // 非阻塞取出一个 TCP 连接
+    // 成功返回 ture，否则返回 false
     bool nonBlockingAccept(tcpSocket &);
 
     // 关闭连接
