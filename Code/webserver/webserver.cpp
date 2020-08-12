@@ -44,12 +44,12 @@ void webserver::listen() {
 
 void webserver::dealClientConnction() {
     while(ser.nonBlockingAccept(clnt)) {
-        if(clientCount >= MAX_FD) {
+        if(clientCount >= static_cast<int>(MAX_FD) ) {
             error_handling("server busy", false);
             break;
         }
         clnt.setNonBlocking();
-        if(ep -> add(clnt, EPOLLIN|EPOLLET|EPOLLOUT)); {
+        if(ep -> add(clnt, EPOLLIN|EPOLLET|EPOLLOUT)) {
             std::cout << "connected client : " << clnt << std::endl;
             ++clientCount;
         }
