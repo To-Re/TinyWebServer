@@ -47,14 +47,14 @@ private:
 
     // webserver 是否运行
     bool isStop = false;
-    // 客户端数量
-    int clientCount = 0;
     // 套接字
     wzy::tcpSocket ser, clnt;
     // epoll
-    std::shared_ptr<wzy::etEpoll> ep;
+    std::shared_ptr<etEpoll> ep;
     // 线程池
     std::shared_ptr<threadPool<httpcon> > thrdpool;
+    // httpcon
+    std::shared_ptr<httpcon[]> clnthttp;
 };
 
 }

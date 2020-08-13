@@ -13,11 +13,15 @@ webserver::webserver(
 ) : PORT(port),  WORK_THREAD_NUM(workThreadNum), TASK_QUEUE_NUM(taskQueueNum),
     EPOLL_SIZE(epollSize), MAX_FD(maxFd),
     MAX_BACKLOG(backlog), HOME_PAGE(homePage),
-    ser(), clnt() {
+    ser(), clnt(),
+    // new httpcon
+    clnthttp(new httpcon[MAX_FD], [](int *p){ delete[]p; }) {
     // new epoll
     ep = std::make_shared<wzy::etEpoll>(EPOLL_SIZE);
     // new threadPool
     thrdpool = std::make_shared< threadPool<httpcon> >(WORK_THREAD_NUM, TASK_QUEUE_NUM);
+
+    // 获得 Home_Page 绝对路径
     // 如果是相对路径
     if(HOME_PAGE.empty() || HOME_PAGE[0] != '/') {
         char buffer[200] = {0};
@@ -25,12 +29,9 @@ webserver::webserver(
         std::string tmp(buffer);
         HOME_PAGE = tmp + HOME_PAGE;
     }
-
     // 空或者末尾没有 '/'
     if(HOME_PAGE.empty() || HOME_PAGE.back() != '/')
         HOME_PAGE += "/";
-    
-    // new http 对象 待
 }
 
 webserver::~webserver() = default;
@@ -44,6 +45,7 @@ void webserver::listen() {
 
 void webserver::dealClientConnction() {
     while(ser.nonBlockingAccept(clnt)) {
+        // clientCount 在 httpcon 中维护
         if(clientCount >= static_cast<int>(MAX_FD) ) {
             error_handling("server busy", false);
             break;
@@ -54,6 +56,14 @@ void webserver::dealClientConnction() {
             ++clientCount;
         }
     }
+}
+
+void webserver::dealRead(int sockfd) {
+    thrdpool->addTask(clnthttp[sockfd], thrdpool->READ);
+}
+
+void webserver::dealWrite(int sockfd) {
+    thrdpool->addTask(clnthttp[sockfd], thrdpool->WRITE);
 }
 
 void webserver::start() {
@@ -68,6 +78,7 @@ void webserver::start() {
             if(sockfd == ser) {
                 dealClientConnction();
             }
+            // 优先处理读信号，读信号会触发写信号
             else if( (ep -> events[i].events) & EPOLLIN) {
                 dealRead(sockfd);
             }
