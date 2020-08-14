@@ -35,6 +35,7 @@ public:
 
 class outbuffer : public buffer {
 public:
+    outbuffer(int buffSize = 1000) : buffer(buffSize) {}
 
 };
 
