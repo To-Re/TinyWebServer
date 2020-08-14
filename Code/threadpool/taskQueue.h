@@ -2,19 +2,13 @@
 #define TASKQUEUE_H
 
 #include <queue>
-#include <utility>
 #include <cstddef>
 #include <initializer_list>
-#include <utility>
 
 #include "config.h"
 #include "locker.h"
 
 namespace wzy {
-
-enum taskType {
-    READ = 0, WRITE
-};
 
 template <typename T>
 class taskQueue{
@@ -24,9 +18,9 @@ public:
         pthread_mutex_init(&tasksMutex, NULL);
     }
     ~taskQueue() { close(); };
-    bool addTask(const T &, taskType type = READ);
-    // bool addTask(const std::initializer_list<T> &, taskType);
-    std::vector<std::pair<T, taskType> > getTask(size_t aid = 1); // 服了，模板默认形参要在声明这写
+    bool addTask(const T &);
+    bool addTask(const std::initializer_list<T> &);
+    std::vector<T> getTask(size_t aid = 1); // 服了，模板默认形参要在声明这写
     void close() {
         isClosed = true;
         tasksCond.broadcast();
@@ -36,7 +30,7 @@ private:
     // 任务队列上限
     size_t maxTastQueueNum;
     // 任务队列
-    std::queue<std::pair<T, taskType> > tasks;
+    std::queue<T> tasks;
     // 任务队列互斥锁
     pthread_mutex_t tasksMutex;
     // 任务队列信号量
@@ -48,27 +42,27 @@ private:
 };
 
 template <typename T>
-bool taskQueue<T>::addTask(const T & tmpTask, taskType type) {
+bool taskQueue<T>::addTask(const T & tmpTask) {
     uniqueLocker nowLock(tasksMutex);
     if(tasks.size() >= maxTastQueueNum)
         return false;
-    tasks.push(std::make_pair(tmpTask, type));
+    tasks.push(tmpTask);
     tasksCond.signal();
     return true;
 }
 
-// template <typename T>
-// bool taskQueue<T>::addTask(const std::initializer_list<T> & tmpTasks, taskType type) {
-//     uniqueLocker nowLock(tasksMutex);
-//     // 第一个判断避免数据变负，虽然正常情况不会变负
-//     if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
-//         return false;
-//     for(const auto &ftask : tmpTasks) {
-//         tasks.emplace(ftask);
-//     }
-//     tasksCond.signal();
-//     return true;
-// }
+template <typename T>
+bool taskQueue<T>::addTask(const std::initializer_list<T> & tmpTasks) {
+    uniqueLocker nowLock(tasksMutex);
+    // 第一个判断避免数据变负，虽然正常情况不会变负
+    if(tasks.size() > maxTastQueueNum || maxTastQueueNum - tasks.size() < tmpTasks.size())
+        return false;
+    for(const auto &ftask : tmpTasks) {
+        tasks.emplace(ftask);
+    }
+    tasksCond.signal();
+    return true;
+}
 
 // template <typename T>
 // bool taskQueue<T>::addTask(std::initializer_list<T> && tmpTasks) {
@@ -84,8 +78,8 @@ bool taskQueue<T>::addTask(const T & tmpTask, taskType type) {
 // }
 
 template <typename T>
-std::vector<std::pair<T, taskType> > taskQueue<T>::getTask(size_t aid) {
-    std::vector<std::pair<T, taskType> > res;
+std::vector<T> taskQueue<T>::getTask(size_t aid) {
+    std::vector<T> res;
     {
         uniqueLocker nowLock(tasksMutex);
         while(tasks.size() < aid && isClosed == false) {
