@@ -15,7 +15,7 @@ webserver::webserver(
     MAX_BACKLOG(backlog), HOME_PAGE(homePage),
     ser(), clnt(),
     // new httpcon
-    clnthttp(new httpcon[MAX_FD], [](int *p){ delete[]p; }) {
+    clnthttp(new httpcon[MAX_FD], [](httpcon *p){ delete[]p; }) {
     // new epoll
     ep = std::make_shared<wzy::etEpoll>(EPOLL_SIZE);
     // new threadPool
@@ -46,6 +46,7 @@ void webserver::listen() {
     ser.bind(PORT);
     ser.listen(MAX_BACKLOG);
     ser.setNonBlocking();
+    std::cout << "listen : " << PORT << std::endl;
 }
 
 void webserver::dealClientConnction() {
@@ -60,24 +61,25 @@ void webserver::dealClientConnction() {
         if(clnthttp[clnt].startCon(clnt)) {
             std::cout << "connected client : " << clnt << std::endl;
         }
-        else {/* 已存在 httpcon */}
+        else {/* 已存在 httpcon ，应该不会发生，发生了如果频率还大属于比较严重的错误*/}
     }
 }
 
 void webserver::dealRead(int sockfd) {
-    thrdpool->addTask( std::bind(httpcon::read, clnthttp[sockfd]) );
+    thrdpool->addTask( std::bind(&httpcon::read, &clnthttp[sockfd]));
 }
 
 void webserver::dealWrite(int sockfd) {
-    thrdpool->addTask( std::bind(httpcon::write, clnthttp[sockfd]) );
+    thrdpool->addTask( std::bind(&httpcon::write, &clnthttp[sockfd]) );
 }
 
 void webserver::start() {
-    isStop = true;
+    isStop = false;
     ep -> create();
     ep -> add(ser, EPOLLIN|EPOLLET);
     while(!isStop) {
         int cnt = ep -> wait(-1);
+        // std::cout << "信号数量 ： " << cnt << std::endl;
         if(cnt == -1) break;
         for(int i = 0; i < cnt; ++i) {
             int sockfd = ep -> events[i].data.fd;
@@ -86,9 +88,15 @@ void webserver::start() {
             }
             // 优先处理读信号，读信号会触发写信号
             else if( (ep -> events[i].events) & EPOLLIN) {
+                std::cout << "dealRead" << std::endl;
                 dealRead(sockfd);
             }
+            /*
+                一个细节 epoll 刚注册信号 EPOLLOUT，会直接触发，因为是可写
+                我说怎么还没接收消息，就回复了。。
+            */
             else if( (ep -> events[i].events) & EPOLLOUT) {
+                std::cout << "dealWrite" << std::endl;
                 dealWrite(sockfd);
             }
         }
