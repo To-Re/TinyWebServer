@@ -12,14 +12,14 @@ namespace wzy {
 
 class buffer{
 public:
-    buffer(int buffSize = 1000) : mbuffer(buffSize), leftPos(0), rightPos(0), BUFFSIZE(buffSize) {}
+    buffer(int buffSize = 1000) : leftPos(0), rightPos(0), BUFFSIZE(buffSize) {
+        mbuffer.resize(buffSize, 0);
+    }
     virtual ~buffer() = default;
     void init() { leftPos = 0, rightPos = 0; }
-    const char* const cLeftPtr() { return zerobeginPtr() + leftPos; }
-    const char* const cRightPtr() { return zerobeginPtr() + rightPos; }
-    void coutall() { std::cout << std::string(zerobeginPtr(),zerobeginPtr()+rightPos) << std::endl;}
+    void coutall() { std::cout << mbuffer << std::endl;}
 protected:
-    std::vector<char> mbuffer;
+    std::string mbuffer;
     size_t leftPos = 0, rightPos = 0, BUFFSIZE = 0;
     char* zerobeginPtr() { return &mbuffer[0]; }
 };
@@ -29,8 +29,7 @@ public:
     inbuffer(int buffSize = 1000) : buffer(buffSize) {}
     ~inbuffer() = default;
     bool canRead() { return rightPos > leftPos; }
-    bool BeginLeftPtrMovetoR(int);
-    const char* getfindPtr(const std::string & endString = "\r\n");
+    std::string getString(const std::string & endString = "\r\n");
     // 0 读完，1 没读完，2 读失败, 3 输入过大，并不大算自适应，4 客户端关闭
     int readFromFd(int);
 };

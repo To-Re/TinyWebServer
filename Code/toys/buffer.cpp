@@ -1,31 +1,16 @@
-#include <sys/uio.h>
-#include <iostream>
-
 #include "buffer.h"
 
 namespace wzy {
 
-bool inbuffer::BeginLeftPtrMovetoR(int moveRight) {
-    if(moveRight < 0 || leftPos+static_cast<size_t>(moveRight) > rightPos) {
-        std::cerr << "BeginLeftPtrMovetoR error()" << std::endl;
-        return false;
+std::string inbuffer::getString(const std::string & endString) {
+    size_t pos = mbuffer.find(endString, leftPos);
+    size_t tmppos = leftPos;
+    if(pos == mbuffer.npos) { // 没找到
+        leftPos = rightPos;
+        return std::string(zerobeginPtr() + tmppos, zerobeginPtr() + rightPos);
     }
-    leftPos += moveRight;
-    return true;
-}
-
-const char* inbuffer::getfindPtr(const std::string & endString) {
-    // 可以用 kmp 但是这给解析 http 用没必要，结束字符才两个长度
-    size_t len = endString.size();
-    if(len == 0) return zerobeginPtr() + rightPos;
-    size_t i = leftPos;
-    for(i = leftPos; i < rightPos; ++i) {
-        if(i+len-1 >= rightPos) break;
-        size_t j = 0;
-        for(j = 0; j < len && endString[j] == mbuffer[i+j]; ++j) {}
-        if(j == len) break;
-    }
-    return zerobeginPtr() + rightPos;
+    leftPos = pos+endString.size();
+    return std::string(zerobeginPtr() + tmppos, zerobeginPtr() + pos);
 }
 
 // 0 读完，1 没读完，2 读失败, 3 输入过大，并不打算自适应，4 客户端关闭
