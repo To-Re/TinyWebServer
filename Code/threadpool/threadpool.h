@@ -3,8 +3,10 @@
 
 #include <pthread.h>
 
+#include <utility>
 #include <vector>
 #include <cstddef>
+#include <iostream>
 #include <initializer_list>
 
 #include "config.h"
@@ -21,8 +23,8 @@ public:
     );
     ~threadPool();
     // 添加任务
-    bool addTask(const T &);
-    bool addTask(const std::initializer_list<T> &);
+    bool addTask(const T & tmpTask, taskType type = READ);
+    // bool addTask(const std::initializer_list<T> & tmpTasks, taskType type = READ);
     // bool addTask(std::initializer_list<T> &&);
 private:
     // 工作线程数
@@ -60,14 +62,14 @@ threadPool<T>::~threadPool() {
 
 // 添加任务
 template <typename T>
-bool threadPool<T>::addTask(const T &tmpTasks) {
-    return tasks.addTask(tmpTasks);
+bool threadPool<T>::addTask(const T &tmpTask, taskType type) {
+    return tasks.addTask(tmpTask, type);
 }
 
-template <typename T>
-bool threadPool<T>::addTask(const std::initializer_list<T> &tmpTasks) {
-    return tasks.addTask(tmpTasks);
-}
+// template <typename T>
+// bool threadPool<T>::addTask(const std::initializer_list<T> &tmpTasks, taskType type) {
+//     return tasks.addTask(tmpTasks, type);
+// }
 
 // template <typename T>
 // bool threadPool<T>::addTask(std::initializer_list<T> &&tmpTasks) {
@@ -79,9 +81,17 @@ template <typename T>
 void *threadPool<T>::worker(void *arg) {
     threadPool *pool = static_cast<threadPool *>(arg);
     while(pool->isClosed == false) {
-        std::vector<T> tmpTasks = (pool->tasks).getTask(1);
-        for(auto & task : tmpTasks)
-            task(); // 先整个函数
+        std::vector<std::pair<T, taskType> > tmpTasks = (pool->tasks).getTask(1);
+        for(auto & task : tmpTasks) {
+            if(task.second == READ) {
+                std::cout << "READ" << std::endl;
+                task.first();
+            }
+            else {
+                std::cout << "WRITE" << std::endl;
+                task.first();
+            }
+        }
     }
     return NULL;
 }
