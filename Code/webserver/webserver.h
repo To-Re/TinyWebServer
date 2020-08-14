@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <iostream>
+#include <functional>
 
 #include "config.h"
 #include "etEpoll.h"
@@ -52,7 +53,7 @@ private:
     // epoll
     std::shared_ptr<etEpoll> ep;
     // 线程池
-    std::shared_ptr<threadPool<httpcon> > thrdpool;
+    std::shared_ptr<threadPool<std::function<void()> > > thrdpool;
     // httpcon
     std::shared_ptr<httpcon[]> clnthttp;
 };

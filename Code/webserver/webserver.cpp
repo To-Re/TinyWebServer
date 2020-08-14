@@ -19,7 +19,7 @@ webserver::webserver(
     // new epoll
     ep = std::make_shared<wzy::etEpoll>(EPOLL_SIZE);
     // new threadPool
-    thrdpool = std::make_shared< threadPool<httpcon> >(WORK_THREAD_NUM, TASK_QUEUE_NUM);
+    thrdpool = std::make_shared< threadPool<std::function<void()> > >(WORK_THREAD_NUM, TASK_QUEUE_NUM);
 
     // 获得 Home_Page 绝对路径
     // 如果是相对路径
@@ -65,11 +65,11 @@ void webserver::dealClientConnction() {
 }
 
 void webserver::dealRead(int sockfd) {
-    thrdpool->addTask(clnthttp[sockfd], READ);
+    thrdpool->addTask( std::bind(httpcon::read, clnthttp[sockfd]) );
 }
 
 void webserver::dealWrite(int sockfd) {
-    thrdpool->addTask(clnthttp[sockfd], WRITE);
+    thrdpool->addTask( std::bind(httpcon::write, clnthttp[sockfd]) );
 }
 
 void webserver::start() {
