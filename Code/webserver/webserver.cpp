@@ -65,11 +65,11 @@ void webserver::dealClientConnction() {
 }
 
 void webserver::dealRead(int sockfd) {
-    thrdpool->addTask(clnthttp[sockfd], thrdpool->READ);
+    thrdpool->addTask(clnthttp[sockfd], READ);
 }
 
 void webserver::dealWrite(int sockfd) {
-    thrdpool->addTask(clnthttp[sockfd], thrdpool->WRITE);
+    thrdpool->addTask(clnthttp[sockfd], WRITE);
 }
 
 void webserver::start() {
