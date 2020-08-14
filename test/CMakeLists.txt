@@ -14,6 +14,16 @@ set(
     ${LIB_DIR}/toys/tcpsocket.cpp
     ${LIB_DIR}/toys/etEpoll.h
     ${LIB_DIR}/toys/etEpoll.cpp
+    ${LIB_DIR}/toys/buffer.h
+    ${LIB_DIR}/toys/buffer.cpp
+    ${LIB_DIR}/webserver/webserver.h
+    ${LIB_DIR}/webserver/webserver.cpp
+    ${LIB_DIR}/http/httpcon.h
+    ${LIB_DIR}/http/httpcon.cpp
+    ${LIB_DIR}/http/httprequest.h
+    ${LIB_DIR}/http/httprequest.cpp
+    ${LIB_DIR}/http/httpresponse.h
+    ${LIB_DIR}/http/httpresponse.cpp
     ${LIB_DIR}/config.h
     main.cpp
 )
@@ -22,6 +32,8 @@ INCLUDE_DIRECTORIES(
     ${LIB_DIR}/locker
     ${LIB_DIR}/threadpool
     ${LIB_DIR}/toys
+    ${LIB_DIR}/http
+    ${LIB_DIR}/webserver
     ${LIB_DIR}
 )
 
