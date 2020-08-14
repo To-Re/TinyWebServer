@@ -32,6 +32,11 @@ webserver::webserver(
     // 空或者末尾没有 '/'
     if(HOME_PAGE.empty() || HOME_PAGE.back() != '/')
         HOME_PAGE += "/";
+    
+    // 初始化 httpcon
+    for(size_t i = 0; i < MAX_FD; ++i) {
+        clnthttp[i].init(ep, HOME_PAGE);
+    }
 }
 
 webserver::~webserver() = default;
@@ -46,15 +51,16 @@ void webserver::listen() {
 void webserver::dealClientConnction() {
     while(ser.nonBlockingAccept(clnt)) {
         // clientCount 在 httpcon 中维护
-        if(clientCount >= static_cast<int>(MAX_FD) ) {
+        if(httpcon::clntCount >= static_cast<int>(MAX_FD) ) {
             error_handling("server busy", false);
             break;
         }
         clnt.setNonBlocking();
-        if(ep -> add(clnt, EPOLLIN|EPOLLET|EPOLLOUT)) {
+        // clnthttp[clnt].closeCon();
+        if(clnthttp[clnt].startCon(clnt)) {
             std::cout << "connected client : " << clnt << std::endl;
-            ++clientCount;
         }
+        else {/* 已存在 httpcon */}
     }
 }
 
