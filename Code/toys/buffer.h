@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
+#include <iostream>
 
 namespace wzy {
 
@@ -16,6 +17,7 @@ public:
     void init() { leftPos = 0, rightPos = 0; }
     const char* const cLeftPtr() { return zerobeginPtr() + leftPos; }
     const char* const cRightPtr() { return zerobeginPtr() + rightPos; }
+    void coutall() { std::cout << std::string(zerobeginPtr(),zerobeginPtr()+rightPos) << std::endl;}
 protected:
     std::vector<char> mbuffer;
     size_t leftPos = 0, rightPos = 0, BUFFSIZE = 0;

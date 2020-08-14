@@ -6,7 +6,7 @@
 namespace wzy {
 
 bool inbuffer::BeginLeftPtrMovetoR(int moveRight) {
-    if(moveRight < 0 || leftPos+moveRight > rightPos) {
+    if(moveRight < 0 || leftPos+static_cast<size_t>(moveRight) > rightPos) {
         std::cerr << "BeginLeftPtrMovetoR error()" << std::endl;
         return false;
     }
@@ -16,12 +16,12 @@ bool inbuffer::BeginLeftPtrMovetoR(int moveRight) {
 
 const char* inbuffer::getfindPtr(const std::string & endString) {
     // 可以用 kmp 但是这给解析 http 用没必要，结束字符才两个长度
-    int len = endString.size();
+    size_t len = endString.size();
     if(len == 0) return zerobeginPtr() + rightPos;
-    int i = leftPos;
+    size_t i = leftPos;
     for(i = leftPos; i < rightPos; ++i) {
         if(i+len-1 >= rightPos) break;
-        int j = 0;
+        size_t j = 0;
         for(j = 0; j < len && endString[j] == mbuffer[i+j]; ++j) {}
         if(j == len) break;
     }
