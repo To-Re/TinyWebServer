@@ -27,11 +27,12 @@ webserver::webserver(
         char buffer[200] = {0};
         getcwd(buffer, sizeof(buffer));
         std::string tmp(buffer);
-        HOME_PAGE = tmp + HOME_PAGE;
+        HOME_PAGE = tmp + "/" + HOME_PAGE;
     }
-    // 空或者末尾没有 '/'
-    if(HOME_PAGE.empty() || HOME_PAGE.back() != '/')
-        HOME_PAGE += "/";
+    // 末尾有 '/'
+    if(!HOME_PAGE.empty() && HOME_PAGE.back() == '/') {
+        HOME_PAGE.erase(HOME_PAGE.end()-1);
+    }
     
     // 初始化 httpcon
     for(size_t i = 0; i < MAX_FD; ++i) {
