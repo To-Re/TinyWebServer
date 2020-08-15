@@ -60,7 +60,7 @@ void webserver::dealClientConnction() {
         clnt.setNonBlocking();
         // clnthttp[clnt].closeCon();
         if(clnthttp[clnt].startCon(clnt)) {
-            std::cout << "connected client : " << clnt << std::endl;
+            // std::cout << "connected client : " << clnt << std::endl;
         }
         else {/* 已存在 httpcon ，应该不会发生，发生了如果频率还大属于比较严重的错误*/}
     }
@@ -89,7 +89,7 @@ void webserver::start() {
             }
             // 优先处理读信号，读信号会触发写信号
             else if( (ep -> events[i].events) & EPOLLIN) {
-                std::cout << "dealRead" << std::endl;
+                // std::cout << "dealRead" << std::endl;
                 dealRead(sockfd);
             }
             /*
@@ -97,7 +97,7 @@ void webserver::start() {
                 我说怎么还没接收消息，就回复了。。
             */
             else if( (ep -> events[i].events) & EPOLLOUT) {
-                std::cout << "dealWrite" << std::endl;
+                // std::cout << "dealWrite" << std::endl;
                 dealWrite(sockfd);
             }
         }
