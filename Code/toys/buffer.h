@@ -5,6 +5,7 @@
 #include <vector>
 #include <unistd.h>
 #include <iostream>
+#include <fstream>
 
 namespace wzy {
 
@@ -18,6 +19,7 @@ public:
     virtual ~buffer() = default;
     void init() { leftPos = 0, rightPos = 0; }
     void coutall() { std::cout << mbuffer << std::endl;}
+    void coutPtr() { std::cout << "L : " << leftPos << " R : " << rightPos << std::endl; }
 protected:
     std::string mbuffer;
     size_t leftPos = 0, rightPos = 0, BUFFSIZE = 0;
@@ -36,8 +38,13 @@ public:
 
 class outbuffer : public buffer {
 public:
-    outbuffer(int buffSize = 1000) : buffer(buffSize) {}
-
+    outbuffer(int buffSize = 0) : buffer(buffSize) {}
+    ~outbuffer() = default;
+    void clear();
+    bool add(const std::string &);
+    int getFileLen(const std::string &);
+    void addfile(const std::string &);
+    ssize_t writetofd(int fd, int &);
 };
 
 }
