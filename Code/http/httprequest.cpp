@@ -12,6 +12,7 @@ httprequest::HTTP_CODE httprequest::parse(inbuffer &buff) {
     if(buff.canRead() <= 0) {
         return BAD_REQUEST;
     }
+    HTTP_CODE res;
     while(buff.canRead() && parseState != CHECK_STATE_END) {
         std::string line = buff.getString("\r\n");
         switch(parseState) {
@@ -27,9 +28,9 @@ httprequest::HTTP_CODE httprequest::parse(inbuffer &buff) {
             else return GET_REQUEST; // 只解析到 HOST，后面略
             break;
         case CHECK_STATE_CONTENT:
-            if(parse_content(line) == BAD_REQUEST) {
-                return BAD_REQUEST;
-            }
+            res = parse_content(line);
+            if(res == GET_REQUEST) return GET_REQUEST;
+            if(res == BAD_REQUEST) return BAD_REQUEST;
         default:
             break;
         }
@@ -65,10 +66,11 @@ httprequest::HTTP_CODE httprequest::parse_headers(std::string & line) {
         return BAD_REQUEST;
     }
     parseState = CHECK_STATE_CONTENT;
+    return NO_REQUEST;
 }
 
 httprequest::HTTP_CODE httprequest::parse_content(std::string &) {
-    return BAD_REQUEST;
+    return GET_REQUEST;
 }
 
 }
