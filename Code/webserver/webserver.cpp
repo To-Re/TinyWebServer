@@ -30,8 +30,8 @@ webserver::webserver(
         HOME_PAGE = tmp + "/" + HOME_PAGE;
     }
     // 末尾有 '/'
-    if(!HOME_PAGE.empty() && HOME_PAGE.back() == '/') {
-        HOME_PAGE.erase(HOME_PAGE.end()-1);
+    if(HOME_PAGE.empty() || HOME_PAGE.back() != '/') {
+        HOME_PAGE += "/";
     }
     
     // 初始化 httpcon
