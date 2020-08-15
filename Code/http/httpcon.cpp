@@ -70,11 +70,21 @@ void httpcon::process() {
     std::cout << "路径 " << request.path() << std::endl;
     std::cout << "版本 " << request.version() << std::endl;
     std::cout << "Host " << request.host() << std::endl;
-    // resSend(res);
+
+    if(res == httprequest::NO_REQUEST) {
+        // ep->add(clntfd, EPOLLIN|EPOLLET|EPOLLRDHUP);
+        return;
+    }
+    response.init(request.methon(), request.path(), request.version());
+    if(!response.compose(out, httprequest::BAD_REQUEST == res)) {
+        closeCon();
+    }
+    // ep->add(clntfd, EPOLLOUT|EPOLLET); 连接时候全注册过了，连接时候如果没注册 EPOLLOUT 需要注册
 }
 
+// 待
 void httpcon::write() {
-    // std::cout << "write 就离谱 fd" << clntfd << std::endl;
+    
 }
 
 }

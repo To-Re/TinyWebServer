@@ -20,7 +20,7 @@ class httpcon {
 public:
     // 用户数量
     static int clntCount;
-    httpcon(int inBuffSize = 1000, int outBuffSize = 1000);
+    httpcon(int inBuffSize = 1000, int outBuffSize = 0);
     ~httpcon() { if(!isClosed) closeCon(); }
     // 初始化 init
     void init(std::shared_ptr<etEpoll> epollPtr, std::string home_page);
