@@ -49,9 +49,9 @@ public:
 private:
     int sockfd = -1;
 
-    static void error_handling(const std::string & message) {
+    static void error_handling(const std::string & message, const bool & isexit = true) {
         std::cerr << message << std::endl;
-        exit(1);
+        if(isexit) exit(1);
     }
 };
 

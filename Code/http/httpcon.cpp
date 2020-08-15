@@ -31,7 +31,7 @@ void httpcon::closeCon() {
     if(ep -> del(clntfd)) {
         close(clntfd);
         --clntCount;
-        std::cout << "clntCount :" << clntCount << " close fd : " << clntfd << std::endl;
+        // std::cout << "clntCount :" << clntCount << " close fd : " << clntfd << std::endl;
         clntfd = -1;
         isClosed = true;
     }
