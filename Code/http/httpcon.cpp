@@ -17,7 +17,7 @@ void httpcon::init(std::shared_ptr<etEpoll> epollPtr, std::string home_page) {
 // 接收新连接，返回 true 建立成功，否则返回 false
 bool httpcon::startCon(int sockfd) {
     if(isClosed == false) return false;
-    ep -> add(sockfd, EPOLLIN|EPOLLET|EPOLLOUT);
+    ep -> add(sockfd, EPOLLIN|EPOLLET);
     in.init();
     out.init();
     clntfd = sockfd;
@@ -27,11 +27,11 @@ bool httpcon::startCon(int sockfd) {
 }
 
 void httpcon::closeCon() {
-    std::cout << "begin close : clntCount :" << clntCount << " close fd : " << clntfd << std::endl;
     if(isClosed == true) return;
     if(ep -> del(clntfd)) {
         close(clntfd);
         --clntCount;
+        std::cout << "clntCount :" << clntCount << " close fd : " << clntfd << std::endl;
         clntfd = -1;
         isClosed = true;
     }
@@ -58,33 +58,48 @@ void httpcon::read() {
         }
         // 1 继续
     }
-    in.coutall();
+    // in.coutall();
     process();
 }
 
 void httpcon::process() {
     request.init();
     httprequest::HTTP_CODE res = request.parse(in);
-    std::cout << "状态 " << res << std::endl;
-    std::cout << "方法 " << request.methon() << std::endl;
-    std::cout << "路径 " << request.path() << std::endl;
-    std::cout << "版本 " << request.version() << std::endl;
-    std::cout << "Host " << request.host() << std::endl;
+    // std::cout << "状态 " << res << std::endl;
+    // std::cout << "方法 " << request.methon() << std::endl;
+    // std::cout << "路径 " << request.path() << std::endl;
+    // std::cout << "版本 " << request.version() << std::endl;
+    // std::cout << "Host " << request.host() << std::endl;
 
+    // 没有请求，等待消息
     if(res == httprequest::NO_REQUEST) {
-        // ep->add(clntfd, EPOLLIN|EPOLLET|EPOLLRDHUP);
+        std::cout << "wtf ?? NO_REQUEST" << std::endl;
         return;
     }
-    response.init(request.methon(), request.path(), request.version());
-    if(!response.compose(out, httprequest::BAD_REQUEST == res)) {
-        closeCon();
-    }
-    // ep->add(clntfd, EPOLLOUT|EPOLLET); 连接时候全注册过了，连接时候如果没注册 EPOLLOUT 需要注册
+    // 组装
+    response.init(HOME_PAGE, request.methon(), request.path(), request.version());
+    response.compose(out, httprequest::BAD_REQUEST == res);
+    write();
 }
 
-// 待
 void httpcon::write() {
-    
+    int errorReson;
+    ssize_t len;
+    while(true) {
+        len = out.writetofd(clntfd, errorReson);
+        if(len == 0) {
+            closeCon();
+            return;
+        }
+        if(len < 0) {
+            if(errorReson == EAGAIN) {
+                ep -> add(clntfd, EPOLLIN|EPOLLET|EPOLLOUT);
+                return;
+            }
+            closeCon();
+            return;
+        }
+    }
 }
 
 }
