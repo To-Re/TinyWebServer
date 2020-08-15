@@ -27,23 +27,29 @@ void httpresponse::compose(outbuffer &out, bool is_400) {
     if(is_400) sta = 400;
     // 检查文件
     check(sta, out);
-    out.add(VERSION + " " + std::to_string(sta) + " " + state[sta] + "\n\r" + "\n\r");
+    // 状态行
+    out.add(VERSION + " " + std::to_string(sta) + " " + state[sta] + "\r\n");
+    // 响应头部
+    // 长度+类型
+    out.add("Content-length:" + std::to_string(out.getFileLen(PATH)) + "\r\n");
+    out.add(std::string("Content-type:text/html") + "\r\n");
+    out.add("\n");
     // 传输 PATH 对应文件
     out.addfile(HOME+PATH);
-    out.coutall();
+    // out.coutall();
 }
 
 void httpresponse::check(int &sta, outbuffer &out) {
     if(sta == 400) {
         sta = 400;
-        PATH == merrorfile[sta];
+        PATH = merrorfile[sta];
         return;
     }
     if(PATH == "/" || PATH.empty()) PATH = "index.html";
     int len = out.getFileLen(HOME+PATH);
     if(len == -1) {
         sta = 404;
-        PATH == merrorfile[sta];
+        PATH = merrorfile[sta];
         return;
     }
     sta = 200;
