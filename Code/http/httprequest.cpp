@@ -4,7 +4,7 @@
 namespace wzy {
 
 void httprequest::init() {
-    METHOD = PATH = VERSION = "";
+    METHON = PATH = VERSION = "";
     parseState = CHECK_STATE_REQUESTLINE;
 }
 
@@ -39,10 +39,10 @@ httprequest::HTTP_CODE httprequest::parse(inbuffer &buff) {
 
 httprequest::HTTP_CODE httprequest::parse_request_line(std::string & line) {
     std::istringstream linecin(line);
-    if(!(linecin >> METHOD)) {
+    if(!(linecin >> METHON)) {
         return BAD_REQUEST;
     }
-    if(METHOD != "GET") {
+    if(METHON != "GET") {
         return BAD_REQUEST;
     }
     if(!(linecin >> PATH)) {

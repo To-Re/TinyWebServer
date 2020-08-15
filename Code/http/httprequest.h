@@ -24,7 +24,7 @@ public:
     ~httprequest() = default;
     void init();
     HTTP_CODE parse(inbuffer &);
-    const std::string &methon() const { return METHOD; }
+    const std::string &methon() const { return METHON; }
     const std::string &path() const { return PATH; }
     const std::string &version() const { return VERSION; }
     const std::string &host() const { return HOST; }
@@ -33,7 +33,7 @@ private:
     HTTP_CODE parse_headers(std::string &);
     HTTP_CODE parse_content(std::string &);
     CHECK_STATE parseState = CHECK_STATE_REQUESTLINE;
-    std::string METHOD, PATH, VERSION, HOST;
+    std::string METHON, PATH, VERSION, HOST;
 };
 
 }
