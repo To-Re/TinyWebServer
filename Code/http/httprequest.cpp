@@ -13,7 +13,7 @@ httprequest::HTTP_CODE httprequest::parse(inbuffer &buff) {
         return BAD_REQUEST;
     }
     HTTP_CODE res;
-    while(buff.canRead() && parseState != CHECK_STATE_END) {
+    while(true) {
         std::string line = buff.getString("\r\n");
         switch(parseState) {
         case CHECK_STATE_REQUESTLINE:
@@ -25,17 +25,19 @@ httprequest::HTTP_CODE httprequest::parse(inbuffer &buff) {
             if(parse_headers(line) == BAD_REQUEST) {
                 return BAD_REQUEST;
             }
-            else return GET_REQUEST; // 只解析到 HOST，后面略
             break;
         case CHECK_STATE_CONTENT:
+            // std::cout << "让我看看 CONTENT 都有啥：" << line << std::endl;
             res = parse_content(line);
-            if(res == GET_REQUEST) return GET_REQUEST;
+            if(line.empty()) parseState = CHECK_STATE_END;
             if(res == BAD_REQUEST) return BAD_REQUEST;
         default:
+            // std::cout << "解析结束" << std::endl;
+            return GET_REQUEST;
             break;
         }
     }
-    return NO_REQUEST;
+    return BAD_REQUEST;
 }
 
 httprequest::HTTP_CODE httprequest::parse_request_line(std::string & line) {
@@ -43,7 +45,7 @@ httprequest::HTTP_CODE httprequest::parse_request_line(std::string & line) {
     if(!(linecin >> METHON)) {
         return BAD_REQUEST;
     }
-    if(METHON != "GET") {
+    if(METHON != "GET" && METHON != "POST") {
         return BAD_REQUEST;
     }
     if(!(linecin >> PATH)) {
@@ -59,18 +61,20 @@ httprequest::HTTP_CODE httprequest::parse_request_line(std::string & line) {
 httprequest::HTTP_CODE httprequest::parse_headers(std::string & line) {
     std::istringstream linecin(line);
     std::string tmp;
-    if(!(linecin >> tmp) || tmp != "Host:") {
-        return BAD_REQUEST;
+    if(!(linecin >> tmp)) {
+        parseState = CHECK_STATE_CONTENT;
+        return NO_REQUEST;
     }
-    if(!(linecin >> HOST)) {
-        return BAD_REQUEST;
+    if(tmp == "Host:") {
+        if(!(linecin >> HOST)) {
+            return BAD_REQUEST;
+        }
     }
-    parseState = CHECK_STATE_CONTENT;
     return NO_REQUEST;
 }
 
 httprequest::HTTP_CODE httprequest::parse_content(std::string &) {
-    return GET_REQUEST;
+    return NO_REQUEST;
 }
 
 }
