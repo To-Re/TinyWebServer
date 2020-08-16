@@ -93,7 +93,10 @@ void httpcon::write() {
         }
         if(len < 0) {
             if(errorReson == EAGAIN) {
-                ep -> add(clntfd, EPOLLIN|EPOLLET|EPOLLOUT);
+                if(!ep -> add(clntfd, EPOLLIN|EPOLLET|EPOLLOUT)) {
+                    std::cout << "注册失败" << std::endl;
+                    closeCon();
+                }
                 return;
             }
             closeCon();
