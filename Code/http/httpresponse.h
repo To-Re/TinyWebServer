@@ -25,6 +25,7 @@ private:
     void check(int &, outbuffer &);
     static std::map<int, std::string> state;
     static std::map<int, std::string> merrorfile;
+    static std::map<std::string, std::string> fileType;
     std::string HOME, METHON, PATH, VERSION;
 };
 

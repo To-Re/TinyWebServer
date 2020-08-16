@@ -15,6 +15,13 @@ std::map<int, std::string> httpresponse::merrorfile = {
     {404, "404.html"},
 };
 
+std::map<std::string, std::string> httpresponse::fileType = {
+    {".html", "text/html"},
+    {".png", "image/png"},
+    {".mp4", "video/mp4"},
+    {"","text/html"}
+};
+
 void httpresponse::compose(outbuffer &out, bool is_400) {
     // std::cout << "compose : " << std::endl;
     // std::cout << HOME << std::endl;
@@ -30,13 +37,18 @@ void httpresponse::compose(outbuffer &out, bool is_400) {
     // 状态行
     out.add(VERSION + " " + std::to_string(sta) + " " + state[sta] + "\r\n");
     // 响应头部
-    // 长度+类型
-    out.add("Content-length:" + std::to_string(out.getFileLen(PATH)) + "\r\n");
-    out.add(std::string("Content-type:text/html") + "\r\n");
+    // 长度
+    out.add("Content-length:" + std::to_string(out.getFileLen(HOME+PATH)) + "\r\n");
+    // 文件类型
+    out.add("Content-type:" + fileType[std::string(PATH.begin() + PATH.rfind('.'), PATH.end())] + "\r\n");
     out.add("\n");
+
+    // std::cout << "组装结果" << std::endl;
+    // std::cout << PATH << std::endl;
+    // out.coutall();
+
     // 传输 PATH 对应文件
     out.addfile(HOME+PATH);
-    // out.coutall();
 }
 
 void httpresponse::check(int &sta, outbuffer &out) {
