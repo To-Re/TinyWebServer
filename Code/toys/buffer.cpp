@@ -54,10 +54,13 @@ int outbuffer::getFileLen(const std::string & path) {
 }
 
 void outbuffer::addfile(const std::string & path) {
-    std::fstream in(path);
+    std::fstream in(path, std::ios::in);
     if(!in) return;
-    std::string text;
-	while(in>>text) mbuffer += text+" ", rightPos += text.size() + 1;
+    char ch;
+	while(EOF != (ch = in.get())) {
+        mbuffer += ch;
+        ++rightPos;
+    }
     in.close();
 }
 
