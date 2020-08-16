@@ -56,12 +56,19 @@ http://home.tiscali.cz/~cz210552/webbench.html
 
 ![](test/png/test2.png)
 
++ ## 效果
+
+GET 解析及响应
+
+![](test/png/index.png)
+
+POST 解析及响应
+
+![](test/png/picture.png)
+
 + ## TODO
 
-1. 解析 POST
-
-2. 计时器
-
-3. 日志
-
-4. 优化输出，可以将文件缓存到内存，每个连接可以维护一个指针而不是一大串文本
+>+ 图片以及视频文件（二进制文件）的传输
+>+ 计时器
+>+ 日志
+>+ 优化输出，可以将文件缓存到内存，每个连接可以维护一个指针而不是一大串文本
